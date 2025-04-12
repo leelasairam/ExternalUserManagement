@@ -1,0 +1,113 @@
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 3 cards per row */
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.dot-red {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: red;
+}
+
+.dot-green {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: green;
+}
+
+.container{
+    background-color: #efeaf5;
+    padding: 0.5rem;
+}
+
+.form-serch{
+    background-color: #E5D9F2;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.m-cancel-btn{
+  margin-left: 0.3rem;
+}
+
+.btn-left-margin{
+  margin-left: 0.3rem;
+}
+
+.pagination{
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+:host {
+    --sds-c-card-color-background: #f8f6fa;
+}
+
+input{
+    width: 200px;
+    height: 32px;
+}
+
+button {
+  appearance: none;
+  background-color: purple;
+  border: 1px solid rgba(27, 31, 35, .15);
+  border-radius: 6px;
+  box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  padding: 6px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+button:focus:not(:focus-visible):not(.focus-visible) {
+    box-shadow: none;
+    outline: none;
+  }
+  
+  button:hover {
+    background-color: rgb(169, 6, 169);
+  }
+  
+  button:focus {
+    box-shadow: rgb(166, 125, 166) 0 0 0 3px;
+    outline: none;
+  }
+  
+  button:disabled {
+    background-color: #f1c2e4;
+    border-color: rgba(27, 31, 35, .1);
+    color: rgba(255, 255, 255, .8);
+    cursor: default;
+  }
+  
+  button:active {
+    background-color: rgb(77, 8, 77);
+    box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+  }
+
+.form-btn{
+    margin-left: 0.3rem;
+}
+
+

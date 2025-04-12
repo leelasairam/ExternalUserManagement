@@ -1,0 +1,118 @@
+<template>
+    <div class="container">
+        <!--Inputs/Search/Actions-->
+        <div class="form-serch">
+            <lightning-layout>
+                <!--search-->
+                <lightning-layout-item size="5" padding="around-small">
+                    <input placeholder="Enter user name..."/>
+                    <button class="form-btn">Find</button>
+                </lightning-layout-item>
+                <!--Active Toggle-->
+                <lightning-layout-item size="3" padding="around-small">
+                    <lightning-input data-id="toggle2" type="toggle" label="Hide Inactive"></lightning-input> 
+                </lightning-layout-item>
+                <!--actions-->
+                <lightning-layout-item size="4" padding="around-small">
+                    <lightning-button-group>
+                        <lightning-button icon-name="utility:refresh" label="Refresh"></lightning-button>
+                        <lightning-button onclick={handleBtnActions} data-btn="newUser" icon-name="utility:new" label="New User" variant="brand"></lightning-button>
+                    </lightning-button-group>
+                </lightning-layout-item>
+
+            </lightning-layout>
+        </div>
+    <!--Render User List-->
+        <div class="grid-container">
+            <template for:each={Users} for:item="i">
+                <div key={i.id} class="user-card">
+                    <lightning-card>
+                        <p slot="title"><lightning-avatar src={i.avatar}></lightning-avatar> &nbsp; <span>{i.name}</span></p>
+                        <!--actions-->
+                        <lightning-button-group slot="actions">
+                            <lightning-button-icon onclick={handleBtnActions} data-uid={i.id} data-btn="editUser" icon-name="utility:edit" variant="neutral" title="Edit user"></lightning-button-icon>
+                            <lightning-button icon-name="utility:task" label="New" title="New Task" onclick={handleBtnActions} data-uid={i.id} data-btn="newTask"></lightning-button>
+                            <lightning-button icon-name="utility:task" label="View" title="View Tasks" onclick={handleBtnActions} data-uid={i.id} data-btn="viewTask"></lightning-button>
+                        </lightning-button-group>
+                        <!--body-->
+                        <ul class="slds-p-horizontal_small">
+                            <li>Email : {i.Email}</li>
+                            <li>Phone : {i.Phone}</li>
+                            <li>Active : <span class={i.customClass}></span></li>
+                            <li>Created : <lightning-formatted-date-time value={i.createdAt}></lightning-formatted-date-time></li>
+                            <li>Modified : <lightning-formatted-date-time value={i.LastModified}></lightning-formatted-date-time></li>
+                        </ul>
+                    </lightning-card>
+                </div>
+            </template>
+        </div>
+
+       <!--Pagination-->
+    <div class="pagination">
+        <lightning-button label="< Previous" onclick={handlePagination} data-btn="prev"></lightning-button>
+        <lightning-button label="Next >" onclick={handlePagination} data-btn="next" class="btn-left-margin" variant="brand" disabled={disableNextBtn}></lightning-button>
+    </div>
+
+    </div>
+    <!--Edit User Modal-->
+    <c-modal if:true={editUserModal}>
+        <div slot="header">Edit User</div>
+        <div slot="body" lwc:ref="editForm">
+            <lightning-input label="Name" name="Name" type="text" value={editUserVlaues.name}></lightning-input><!--Some unknown issue here-->
+            <lightning-input label="Email" name="Email" type="email" value={editUserVlaues.Email}></lightning-input>
+            <lightning-input label="Phone" name="Phone" type="tel" value={editUserVlaues.Phone}></lightning-input>
+            <lightning-input label="IsActive" name="IsActive" type="checkbox" checked={editUserVlaues.IsActive}></lightning-input>
+        </div>
+        <div slot="footer">
+            <lightning-button label="Save" onclick={handleSave} data-btn="editSave" variant="brand"></lightning-button>
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+        </div>
+    </c-modal>
+
+    <!--New User-->
+    <c-modal if:true={newUserModal}>
+        <div slot="header">New User</div>
+        <div slot="body" lwc:ref="newForm">
+            <lightning-input label="Name" name="Name" type="text"></lightning-input>
+            <lightning-input label="Email" name="Email" type="email"></lightning-input>
+            <lightning-input label="Phone" name="Phone" type="tel"></lightning-input>
+            <lightning-input label="IsActive" name="IsActive" type="checkbox"></lightning-input>
+        </div>
+        <div slot="footer">
+            <lightning-button label="Save" onclick={handleSave} data-btn="newSave" variant="brand"></lightning-button>
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+        </div>
+    </c-modal>
+
+    <!--New Task-->
+    <c-modal if:true={newTaskModal}>
+        <div slot="header">New Task</div>
+        <div slot="body" lwc:ref="newTaskForm">
+            <lightning-input label="Due Date" name="DueDate" type="date"></lightning-input><br/>
+            <lightning-input-rich-text label="Task Details" name="TaskDetails" type="text" rows="10"></lightning-input-rich-text>
+        </div>
+        <div slot="footer">
+            <lightning-button label="Save" onclick={handleSave} data-btn="newTaskSave" variant="brand"></lightning-button>
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+        </div>
+    </c-modal>
+
+    <!--View Tasks-->
+    <c-modal if:true={viewTaskModal}>
+        <div slot="header">View Tasks</div>
+        <div slot="body" lwc:ref="viewTaskForm">
+            <div class="slds-is-relative">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+            <div>Tasks related to user</div>
+        </div>
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+        </div>
+    </c-modal>
+
+    <!--Spineer-->
+    <div if:true={loading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+</template>
