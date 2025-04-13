@@ -1,6 +1,7 @@
 import { LightningElement,track } from 'lwc';
 import GetExternalUsers from '@salesforce/apex/ManageExternalUsers.GetExternalUsers';
 import CreateResource from '@salesforce/apex/ManageExternalUsers.CreateResource';
+import updateResource from '@salesforce/apex/ManageExternalUsers.updateResource';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class ExternalUserManagement extends LightningElement {
     @track Users;
@@ -11,6 +12,7 @@ export default class ExternalUserManagement extends LightningElement {
     loading = false;
     @track query='';
     @track page = 1;
+    @track uid;
     resourceName = 'users';
     @track editUserVlaues;
     disableNextBtn = false;
@@ -41,7 +43,7 @@ export default class ExternalUserManagement extends LightningElement {
     }
 
     connectedCallback(){
-        this.query = `?page=${this.page}&limit=5`;
+        this.query = `?page=${this.page}&limit=5&sortBy=LastModified&order=desc`;
         this.FetchExternalUsers();
     }
 
@@ -57,11 +59,11 @@ export default class ExternalUserManagement extends LightningElement {
 
     handleBtnActions(event){
         const btn = event.target.dataset.btn;
-        const uid = event.target.dataset.uid;
-        console.log(btn,uid);
+        this.uid = event.target.dataset.uid;
+        console.log(btn,this.uid);
         if(btn === 'editUser'){
             this.editUserModal = true;
-            this.editUserVlaues = this.Users.find(user => user.id === uid);
+            this.editUserVlaues = this.Users.find(user => user.id === this.uid);
         }
         else if(btn === 'newUser'){
             this.newUserModal = true;
@@ -93,13 +95,18 @@ export default class ExternalUserManagement extends LightningElement {
         if(btn==='newSave'){
             this.InsertNewResource('users',{...values,createdAt:isoTodayDate,LastModified:isoTodayDate});
         }
+        else if(btn==='editSave'){
+            console.log(`users#/${this.uid}`);
+            this.EditResource(`users#/${this.uid}`,{...values,LastModified:isoTodayDate});
+        }
     }
 
-    InsertNewResource(resource,jsonBody){
-        CreateResource({resourceName:resource,Body:jsonBody})
+    async InsertNewResource(resource,jsonBody){
+        this.loading=true;
+        await CreateResource({resourceName:resource,Body:jsonBody})
         .then(result=>{
             if(result.statusCode!=='201'){
-                this.toast('Error','Error occoured','error');
+                this.toast('Error',result.responseBody,'error');
                 console.log(result.responseBody);
                 //this.handleModalCancel();
             }
@@ -114,6 +121,40 @@ export default class ExternalUserManagement extends LightningElement {
         })
         .catch(error=>{
             console.log(error);
+            this.toast('Error','Error occoured','error');
+        })
+        .finally(()=>{
+            this.loading=false;
+        })
+    }
+
+    async EditResource(resource,jsonBody){
+        this.loading=true;
+        await updateResource({resourceNameANDId:resource,Body:jsonBody})
+        .then(result=>{
+            if(result.statusCode!=='200'){
+                this.toast('Error',result.responseBody,'error');
+                console.log(result.responseBody);
+                //this.handleModalCancel();
+            }
+            else{
+                this.toast('sucess','Updated successfully','success');
+                console.log(JSON.parse(result.responseBody));
+                const updatedResource = JSON.parse(result.responseBody);
+                if(resource.startsWith("users")){
+                    const tempUsers = this.Users.filter(user=>user.id!=updatedResource.id);
+                    this.Users = [{...updatedResource,customClass : updatedResource.IsActive ? 'dot-green' : 'dot-red',name:updatedResource.Name},...tempUsers];
+                    console.log('first user',this.Users[0]);
+                }   
+                this.handleModalCancel();
+            }
+        })
+        .catch(error=>{
+            console.log(error);
+            this.toast('Error','Error occoured','error');
+        })
+        .finally(()=>{
+            this.loading=false;
         })
     }
 
@@ -137,7 +178,7 @@ export default class ExternalUserManagement extends LightningElement {
                 }
             }
         }
-        this.query = `?page=${this.page}&limit=5`;
+        this.query = `?page=${this.page}&limit=5&sortBy=LastModified&order=desc`;
         this.FetchExternalUsers();
     }
 }
