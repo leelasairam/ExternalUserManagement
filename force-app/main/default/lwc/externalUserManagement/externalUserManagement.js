@@ -1,10 +1,12 @@
 import { LightningElement,track } from 'lwc';
 import GetExternalUsers from '@salesforce/apex/ManageExternalUsers.GetExternalUsers';
+import GetTasks from '@salesforce/apex/ManageExternalUsers.GetTasks';
 import CreateResource from '@salesforce/apex/ManageExternalUsers.CreateResource';
 import updateResource from '@salesforce/apex/ManageExternalUsers.updateResource';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class ExternalUserManagement extends LightningElement {
     @track Users;
+    @track Tasks;
     editUserModal = false;
     newUserModal = false;
     newTaskModal = false;
@@ -16,8 +18,16 @@ export default class ExternalUserManagement extends LightningElement {
     resourceName = 'users';
     @track editUserVlaues;
     disableNextBtn = false;
+    containerLoading = false;
     @track cacheRecord = new Map();
 
+    get priorityOptions() {
+        return [
+            { label: 'Low', value: 'low' },
+            { label: 'Medium', value: 'Medium' },
+            { label: 'High', value: 'high' },
+        ];
+    }
     async FetchExternalUsers(){
         if(this.cacheRecord.has(this.page)){
             this.Users = this.cacheRecord.get(this.page);
@@ -73,6 +83,7 @@ export default class ExternalUserManagement extends LightningElement {
         }
         else if(btn === 'viewTask'){
             this.viewTaskModal = true;
+            this.fetchUserTasks();
         }
 
     }
@@ -85,20 +96,47 @@ export default class ExternalUserManagement extends LightningElement {
             newTaskSave: this.refs.newTaskForm
         };
         const container = formMap[btn] || null;
-        const inputs = container.querySelectorAll('lightning-input, lightning-input-rich-text');
-        let values = {};
-        inputs.forEach(input => {
-            values[input.name] = input.type === 'checkbox' ? input.checked : input.value;
-        });
-        console.log('Input Values:', values);
-        const isoTodayDate = new Date().toISOString();
-        if(btn==='newSave'){
-            this.InsertNewResource('users',{...values,createdAt:isoTodayDate,LastModified:isoTodayDate});
+        if(container!==null){
+            const inputs = container.querySelectorAll('lightning-input, lightning-input-rich-text, lightning-combobox');
+            let values = {};
+            inputs.forEach(input => {
+                values[input.name] = input.type === 'checkbox' ? input.checked : input.value;
+            });
+            console.log('Input Values:', values);
+            const isoTodayDate = new Date().toISOString();
+            if(btn==='newSave'){
+                this.InsertNewResource('users',{...values,createdAt:isoTodayDate,LastModified:isoTodayDate});
+            }
+            else if(btn==='editSave'){
+                console.log(`users#/${this.uid}`);
+                this.EditResource(`users#/${this.uid}`,{...values,LastModified:isoTodayDate});
+            }
+            else if(btn==='newTaskSave'){
+                this.InsertNewResource('Tasks',{...values,createdAt:isoTodayDate,IsCompleted:false,UserId:this.uid});
+            }
         }
-        else if(btn==='editSave'){
-            console.log(`users#/${this.uid}`);
-            this.EditResource(`users#/${this.uid}`,{...values,LastModified:isoTodayDate});
-        }
+    }
+
+    async fetchUserTasks(){
+        this.containerLoading = true;
+        await GetTasks({resourceName:'Tasks',query:`?UserId=${this.uid}&sortBy=createdAt&order=desc`})
+        .then(result=>{
+            console.log(result.statusCode);
+            if(result.statusCode!='200'){
+                this.toast('Info',result.responseBody,'info');
+            }
+            else{
+                this.Tasks = result.responseBody;
+                console.log(this.Tasks[0].Subject);
+            }
+        })
+        .catch(error=>{
+            this.toast('Error',error,'error');
+            console.log(error);
+        })
+        .finally(()=>{
+            this.containerLoading = false;
+        })
     }
 
     async InsertNewResource(resource,jsonBody){

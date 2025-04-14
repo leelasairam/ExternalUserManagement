@@ -16,7 +16,7 @@
                 <lightning-layout-item size="4" padding="around-small">
                     <lightning-button-group>
                         <lightning-button icon-name="utility:refresh" label="Refresh"></lightning-button>
-                        <lightning-button onclick={handleBtnActions} data-btn="newUser" icon-name="utility:new" label="New User" variant="brand"></lightning-button>
+                        <lightning-button onclick={handleBtnActions} data-btn="newUser" data-uid="newUser" icon-name="utility:new" label="New User" variant="brand"></lightning-button>
                     </lightning-button-group>
                 </lightning-layout-item>
 
@@ -88,7 +88,10 @@
     <c-modal if:true={newTaskModal}>
         <div slot="header">New Task</div>
         <div slot="body" lwc:ref="newTaskForm">
-            <lightning-input label="Due Date" name="DueDate" type="date"></lightning-input><br/>
+            <lightning-input label="Subject" name="Subject" type="text"></lightning-input>
+            <lightning-input label="Due Date" name="DueDate" type="date"></lightning-input>
+            <lightning-combobox name="Priority" label="Priority" options={priorityOptions}></lightning-combobox><br/>
+            <p>Task Details :</p>
             <lightning-input-rich-text label="Task Details" name="TaskDetails" type="text" rows="10"></lightning-input-rich-text>
         </div>
         <div slot="footer">
@@ -101,10 +104,22 @@
     <c-modal if:true={viewTaskModal}>
         <div slot="header">View Tasks</div>
         <div slot="body" lwc:ref="viewTaskForm">
-            <div class="slds-is-relative">
+            <div class="slds-is-relative" if:true={containerLoading}>
                 <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
             </div>
-            <div>Tasks related to user</div>
+            <div>
+                <template for:each={Tasks} for:item="i">
+                    <div key={i.id}>
+                        <lightning-card title={i.Subject}>
+                            <lightning-button-group slot="actions">
+                                <lightning-button icon-name="utility:task" label="View" title="View Tasks" onclick={handleBtnActions} data-uid={i.id} data-btn="viewTask"></lightning-button>
+                            </lightning-button-group>
+                            <p>Priority : {i.Priority}</p>
+                            <p>Task Details : {i.TaskDetails}</p>
+                        </lightning-card>
+                    </div>
+                </template>
+            </div>
         </div>
         <div slot="footer">
             <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
