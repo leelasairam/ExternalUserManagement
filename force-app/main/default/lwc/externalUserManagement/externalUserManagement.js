@@ -23,9 +23,9 @@ export default class ExternalUserManagement extends LightningElement {
 
     get priorityOptions() {
         return [
-            { label: 'Low', value: 'low' },
+            { label: 'Low', value: 'Low' },
             { label: 'Medium', value: 'Medium' },
-            { label: 'High', value: 'high' },
+            { label: 'High', value: 'High' },
         ];
     }
     async FetchExternalUsers(){
@@ -97,7 +97,7 @@ export default class ExternalUserManagement extends LightningElement {
         };
         const container = formMap[btn] || null;
         if(container!==null){
-            const inputs = container.querySelectorAll('lightning-input, lightning-input-rich-text, lightning-combobox');
+            const inputs = container.querySelectorAll('lightning-input, lightning-textarea, lightning-combobox');
             let values = {};
             inputs.forEach(input => {
                 values[input.name] = input.type === 'checkbox' ? input.checked : input.value;
@@ -123,7 +123,8 @@ export default class ExternalUserManagement extends LightningElement {
         .then(result=>{
             console.log(result.statusCode);
             if(result.statusCode!='200'){
-                this.toast('Info',result.responseBody,'info');
+                this.Tasks = [];
+                this.toast(result.responseBody,'No tasks related to user','info');
             }
             else{
                 this.Tasks = result.responseBody;
@@ -140,7 +141,7 @@ export default class ExternalUserManagement extends LightningElement {
     }
 
     async InsertNewResource(resource,jsonBody){
-        this.loading=true;
+        this.containerLoading=true;
         await CreateResource({resourceName:resource,Body:jsonBody})
         .then(result=>{
             if(result.statusCode!=='201'){
@@ -162,12 +163,12 @@ export default class ExternalUserManagement extends LightningElement {
             this.toast('Error','Error occoured','error');
         })
         .finally(()=>{
-            this.loading=false;
+            this.containerLoading=false;
         })
     }
 
     async EditResource(resource,jsonBody){
-        this.loading=true;
+        this.containerLoading=true;
         await updateResource({resourceNameANDId:resource,Body:jsonBody})
         .then(result=>{
             if(result.statusCode!=='200'){
@@ -192,7 +193,7 @@ export default class ExternalUserManagement extends LightningElement {
             this.toast('Error','Error occoured','error');
         })
         .finally(()=>{
-            this.loading=false;
+            this.containerLoading=false;
         })
     }
 

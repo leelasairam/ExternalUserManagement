@@ -56,6 +56,11 @@
     </div>
     <!--Edit User Modal-->
     <c-modal if:true={editUserModal}>
+        <!--Loading-->
+        <div class="slds-is-relative" if:true={containerLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        
         <div slot="header">Edit User</div>
         <div slot="body" lwc:ref="editForm">
             <lightning-input label="Name" name="Name" type="text" value={editUserVlaues.name}></lightning-input><!--Some unknown issue here-->
@@ -71,6 +76,12 @@
 
     <!--New User-->
     <c-modal if:true={newUserModal}>
+        <!--Loading-->
+        <div class="slds-is-relative" if:true={containerLoading}>
+            <br/>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        
         <div slot="header">New User</div>
         <div slot="body" lwc:ref="newForm">
             <lightning-input label="Name" name="Name" type="text"></lightning-input>
@@ -80,19 +91,24 @@
         </div>
         <div slot="footer">
             <lightning-button label="Save" onclick={handleSave} data-btn="newSave" variant="brand"></lightning-button>
-            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive" class="m-cancel-btn"></lightning-button>
         </div>
     </c-modal>
 
     <!--New Task-->
     <c-modal if:true={newTaskModal}>
+        <!--Loading-->
+        <div class="slds-is-relative" if:true={containerLoading}>
+            <br/>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+
         <div slot="header">New Task</div>
         <div slot="body" lwc:ref="newTaskForm">
             <lightning-input label="Subject" name="Subject" type="text"></lightning-input>
             <lightning-input label="Due Date" name="DueDate" type="date"></lightning-input>
-            <lightning-combobox name="Priority" label="Priority" options={priorityOptions}></lightning-combobox><br/>
-            <p>Task Details :</p>
-            <lightning-input-rich-text label="Task Details" name="TaskDetails" type="text" rows="10"></lightning-input-rich-text>
+            <lightning-combobox name="Priority" label="Priority" options={priorityOptions}></lightning-combobox>
+            <lightning-textarea name="TaskDetails" label="Task Details"></lightning-textarea>
         </div>
         <div slot="footer">
             <lightning-button label="Save" onclick={handleSave} data-btn="newTaskSave" variant="brand"></lightning-button>
@@ -105,24 +121,31 @@
         <div slot="header">View Tasks</div>
         <div slot="body" lwc:ref="viewTaskForm">
             <div class="slds-is-relative" if:true={containerLoading}>
+                <br/>
                 <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
             </div>
             <div>
                 <template for:each={Tasks} for:item="i">
-                    <div key={i.id}>
+                    <div key={i.id} class="task-card">
                         <lightning-card title={i.Subject}>
                             <lightning-button-group slot="actions">
-                                <lightning-button icon-name="utility:task" label="View" title="View Tasks" onclick={handleBtnActions} data-uid={i.id} data-btn="viewTask"></lightning-button>
+                                <lightning-button icon-name="utility:success" label="Mark as complete" data-btn="markTaskComplete"></lightning-button>
+                                <lightning-button icon-name="utility:delete" data-btn="deleteTask"></lightning-button>
                             </lightning-button-group>
-                            <p>Priority : {i.Priority}</p>
-                            <p>Task Details : {i.TaskDetails}</p>
+                            <div class="slds-p-horizontal_small">
+                                <p><b>Priority : </b>{i.Priority}</p>
+                                <p><b>Due Date : </b>{i.DueDate}</p>
+                                <p><b>Created : </b><lightning-formatted-date-time value={i.createdAt}></lightning-formatted-date-time></p>
+                                <p><b>Is Completed : </b>{i.IsCompleted}</p>
+                                <p><b>Task Details : </b>{i.TaskDetails}</p>
+                            </div>
                         </lightning-card>
                     </div>
                 </template>
             </div>
         </div>
         <div slot="footer">
-            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive-text" class="m-cancel-btn"></lightning-button>
+            <lightning-button label="Cancel" onclick={handleModalCancel} variant="destructive" class="m-cancel-btn"></lightning-button>
         </div>
     </c-modal>
 

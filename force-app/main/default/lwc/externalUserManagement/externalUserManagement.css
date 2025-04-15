@@ -46,6 +46,15 @@
   text-align: center;
 }
 
+.task-card{
+  border-style: ridge;
+  margin-bottom: 0.4rem;
+}
+
+.task-card b{
+  color: rgb(57, 2, 57);
+}
+
 :host {
     --sds-c-card-color-background: #f8f6fa;
 }
